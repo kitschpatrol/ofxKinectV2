@@ -29,7 +29,7 @@ void testApp::draw()
 
 	kinect.drawDepth(0, 0);
 	kinect.drawBodyIndex(500, 0);
-	//kinect.drawAllSkeletons(ofVec2f(640,480));
+	kinect.drawAllSkeletons(ofVec2f(640,480));
 }
 
 //--------------------------------------------------------------
