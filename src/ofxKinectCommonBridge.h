@@ -49,7 +49,7 @@ class Kv2Skeleton
 	map<JointType, Kv2Joint> joints;
 };
 
-class ofxKinectCommonBridge : protected ofThread {
+class ofxKinectCommonBridge : public ofThread {
   public:
 	
 	ofxKinectCommonBridge();
@@ -121,6 +121,8 @@ class ofxKinectCommonBridge : protected ofThread {
 	ofTexture &getColorTexture() {
 		return videoTex;
 	}
+
+	vector<Kv2Skeleton> &getSkeletons();
 
   protected:
 

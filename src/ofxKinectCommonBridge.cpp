@@ -106,9 +106,9 @@ bool ofxKinectCommonBridge::isNewSkeleton() {
 	return bNeedsUpdateSkeleton;
 }
 
-//vector<Skeleton> &ofxKinectCommonBridge::getSkeletons() {
-//	return skeletons;
-//}
+vector<Kv2Skeleton> &ofxKinectCommonBridge::getSkeletons() {
+	return skeletons;
+}
 /// updates the pixel buffers and textures
 /// make sure to call this to update to the latest incoming frames
 void ofxKinectCommonBridge::update()
