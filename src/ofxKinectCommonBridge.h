@@ -18,6 +18,7 @@ class Kv2Joint
 		jointOrientation.set(kcbOrientation.Orientation.x, kcbOrientation.Orientation.y, kcbOrientation.Orientation.z, kcbOrientation.Orientation.w);
 		jointPosition.set(kcbPosition.Position.X, kcbPosition.Position.Y, kcbPosition.Position.Z);
 		type = kcbPosition.JointType;
+		trackingState = kcbPosition.TrackingState;
 	}
 
 	ofVec3f getPosition()
@@ -122,7 +123,7 @@ class ofxKinectCommonBridge : public ofThread {
 		return videoTex;
 	}
 
-	vector<Kv2Skeleton> &getSkeletons();
+	vector<Kv2Skeleton> getSkeletons();
 
   protected:
 
