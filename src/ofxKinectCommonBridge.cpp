@@ -4,7 +4,6 @@
 // common bridge
 //================================================================================================================
 
-
 ofxKinectCommonBridge::ofxKinectCommonBridge(){
 	hKinect = NULL;
 
