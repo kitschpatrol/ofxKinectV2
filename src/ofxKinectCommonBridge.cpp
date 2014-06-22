@@ -107,7 +107,9 @@ bool ofxKinectCommonBridge::isNewSkeleton() {
 }
 
 vector<Kv2Skeleton> ofxKinectCommonBridge::getSkeletons() {
+	//lock(); // necessary?
 	return skeletons;
+	//unlock();
 	/*
 	vector<Kv2Skeleton> skeletonsCopy;
 	skeletonsCopy.resize(6);
