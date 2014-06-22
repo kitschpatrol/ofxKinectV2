@@ -26,9 +26,9 @@ ofxKinectCommonBridge::ofxKinectCommonBridge(){
 	mappingDepthToColor = false;
 
 	bUsingSkeletons = false;
-  	bUseTexture = true;
+	bUseTexture = true;
 	bProgrammableRenderer = false;
-	
+
 	setDepthClipping();
 
 
@@ -82,7 +82,7 @@ void ofxKinectCommonBridge::updateDepthLookupTable()
 	unsigned int maxDepthLevels = 10001;
 	depthLookupTable.resize(maxDepthLevels);
 	depthLookupTable[0] = 0;
-	for(unsigned int i = 1; i < maxDepthLevels; i++)
+	for (unsigned int i = 1; i < maxDepthLevels; i++)
 	{
 		depthLookupTable[i] = ofMap(i, nearClipping, farClipping, nearColor, farColor, true);
 	}
@@ -120,14 +120,14 @@ vector<Kv2Skeleton> ofxKinectCommonBridge::getSkeletons() {
 /// make sure to call this to update to the latest incoming frames
 void ofxKinectCommonBridge::update()
 {
-	if(!bStarted)
+	if (!bStarted)
 	{
 		ofLogError("ofxKinectCommonBridge::update") << "Kinect not started";
 		return;
 	}
 
 	// update color or IR pixels and textures if necessary
-	if(bNeedsUpdateVideo)
+	if (bNeedsUpdateVideo)
 	{
 		bIsFrameNewVideo = true;
 		bNeedsUpdateVideo = false;
@@ -135,77 +135,82 @@ void ofxKinectCommonBridge::update()
 		//swap(videoPixelsBack, videoPixels);
 		swap(pColorFrame, pColorFrameBack);
 
-		if(bUseTexture) {
-			if(bVideoIsInfrared) 
+		if (bUseTexture) {
+			if (bVideoIsInfrared)
 			{
-				if(bProgrammableRenderer){
+				if (bProgrammableRenderer){
 					videoTex.loadData(pColorFrame->Buffer, colorFrameDescription.width, colorFrameDescription.height, GL_RED);
-				} else {
+				}
+				else {
 					videoTex.loadData(pColorFrame->Buffer, colorFrameDescription.width, colorFrameDescription.height, GL_LUMINANCE16);
 				}
-			} 
-			else 
+			}
+			else
 			{
-				if( bProgrammableRenderer ) {
+				if (bProgrammableRenderer) {
 					// programmable renderer likes this
 					// TODO
 					// swizzle this to rgb & a -> GL_ONE
 					//videoTex.loadData(pColorFrame->Buffer, colorFrameDescription.width, colorFrameDescription.height, GL_RGBA);
 					videoTex.loadData(pColorFrame->Buffer, colorFrameDescription.width, colorFrameDescription.height, GL_RG16);
-				} else {
+				}
+				else {
 					videoTex.loadData(pColorFrame->Buffer, colorFrameDescription.width, colorFrameDescription.height, GL_RGBA);
 				}
 			}
 		}
-	} else {
+	}
+	else {
 		bIsFrameNewVideo = false;
 	}
 
 
 	// update depth pixels and texture if necessary
-	if(bNeedsUpdateDepth)
+	if (bNeedsUpdateDepth)
 	{
 
 		//swap(depthPixelsRawBack, depthPixelsRaw);
 		swap(pDepthFrameBack, pDepthFrame);
 
-		if(mappingColorToDepth) {
+		if (mappingColorToDepth) {
 			beginMappingColorToDepth = true;
 		}
 
 		bIsFrameNewDepth = true;
 		bNeedsUpdateDepth = false;
 
-		for(int i = 0; i < depthPixels.getWidth()*depthPixels.getHeight(); i++) {
+		for (int i = 0; i < depthPixels.getWidth()*depthPixels.getHeight(); i++) {
 			depthPixels[i] = depthLookupTable[ofClamp(pDepthFrame->Buffer[i] >> 4, 0, depthLookupTable.size() - 1)];
 			pDepthFrame->Buffer[i] = pDepthFrame->Buffer[i] >> 4;
 		}
 
-		if(bUseTexture) {
-			if( bProgrammableRenderer ) {
+		if (bUseTexture) {
+			if (bProgrammableRenderer) {
 				depthTex.loadData(depthPixels.getPixels(), depthFrameDescription.width, depthFrameDescription.height, GL_RED);
 				rawDepthTex.loadData(depthPixelsRaw.getPixels(), depthFrameDescription.width, depthFrameDescription.height, GL_RED);
-			} else {
+			}
+			else {
 				depthTex.loadData(depthPixels.getPixels(), depthFrameDescription.width, depthFrameDescription.height, GL_LUMINANCE);
 				rawDepthTex.loadData(pDepthFrame->Buffer, depthFrameDescription.width, depthFrameDescription.height, GL_LUMINANCE16);
 			}
 		}
-	} else {
+	}
+	else {
 		bIsFrameNewDepth = false;
 	}
 
 	// update skeletons if necessary
-	if(bUsingSkeletons && bNeedsUpdateSkeleton)
-	{	
+	if (bUsingSkeletons && bNeedsUpdateSkeleton)
+	{
 		swap(skeletons, backSkeletons);
 		bNeedsUpdateSkeleton = false;
 
-	} 
+	}
 
 
 	if (bNeedsUpdateBodyIndex)
 	{
-		
+
 		swap(pBodyIndexFrame, pBodyIndexFrame);
 
 		if (bProgrammableRenderer)
@@ -243,7 +248,7 @@ void ofxKinectCommonBridge::setUseTexture(bool bUse){
 
 //----------------------------------------------------------
 void ofxKinectCommonBridge::draw(float _x, float _y, float _w, float _h) {
-	if(bUseTexture) {
+	if (bUseTexture) {
 		videoTex.draw(_x, _y, _w, _h);
 	}
 }
@@ -265,7 +270,7 @@ void ofxKinectCommonBridge::draw(const ofRectangle & rect) {
 
 //----------------------------------------------------------
 void ofxKinectCommonBridge::drawRawDepth(float _x, float _y, float _w, float _h) {
-	if(bUseTexture) {
+	if (bUseTexture) {
 		rawDepthTex.draw(_x, _y, _w, _h);
 	}
 }
@@ -287,14 +292,14 @@ void ofxKinectCommonBridge::drawRawDepth(const ofRectangle & rect) {
 
 //----------------------------------------------------------
 void ofxKinectCommonBridge::drawDepth(float _x, float _y, float _w, float _h) {
-	if(bUseTexture) {
+	if (bUseTexture) {
 		depthTex.draw(_x, _y, _w, _h);
 	}
 }
 
 //---------------------------------------------------------------------------
 void ofxKinectCommonBridge::drawDepth(float _x, float _y) {
-	drawDepth(_x, _y, (float) depthFrameDescription.width, (float) depthFrameDescription.height);
+	drawDepth(_x, _y, (float)depthFrameDescription.width, (float)depthFrameDescription.height);
 }
 
 //----------------------------------------------------------
@@ -324,9 +329,9 @@ void ofxKinectCommonBridge::drawAllSkeletons(ofVec2f scale)
 }
 
 //
-void ofxKinectCommonBridge::drawSkeleton( int index, ofVec2f scale )
+void ofxKinectCommonBridge::drawSkeleton(int index, ofVec2f scale)
 {
-	if(index >= skeletons.size())
+	if (index >= skeletons.size())
 	{
 		ofLog() << " skeleton index too high " << endl;
 		return;
@@ -338,7 +343,7 @@ void ofxKinectCommonBridge::drawSkeleton( int index, ofVec2f scale )
 		return;
 	}
 
-	ofVec3f lastPosition(-1,-1,-1);
+	ofVec3f lastPosition(-1, -1, -1);
 	ofVec3f normalize(0.5, 0.5, 0);
 	ofVec3f scale3(scale.x, scale.y, 1);
 
@@ -376,9 +381,9 @@ void ofxKinectCommonBridge::drawSkeleton( int index, ofVec2f scale )
 }
 
 
-bool ofxKinectCommonBridge::initSensor( int id )
+bool ofxKinectCommonBridge::initSensor(int id)
 {
-	if(bStarted){
+	if (bStarted){
 		ofLogError("ofxKinectCommonBridge::initSensor") << "Cannot configure once the sensor has already started" << endl;
 		return false;
 	}
@@ -392,12 +397,12 @@ bool ofxKinectCommonBridge::initSensor( int id )
 	return true;
 }
 
-bool ofxKinectCommonBridge::initDepthStream( bool mapDepthToColor )
+bool ofxKinectCommonBridge::initDepthStream(bool mapDepthToColor)
 {
 
 	mappingDepthToColor = mapDepthToColor;
 
-	if(bStarted){
+	if (bStarted){
 		ofLogError("ofxKinectCommonBridge::initDepthStream") << " Cannot configure once the sensor has already started";
 		return false;
 	}
@@ -407,10 +412,11 @@ bool ofxKinectCommonBridge::initDepthStream( bool mapDepthToColor )
 
 	//hr = KCBCreateDepthFrame(depthFrameDescription, &pDepthFrame);
 
-	if(bProgrammableRenderer) {
+	if (bProgrammableRenderer) {
 		depthPixels.allocate(depthFrameDescription.width, depthFrameDescription.height, OF_IMAGE_COLOR);
 		depthPixelsBack.allocate(depthFrameDescription.width, depthFrameDescription.height, OF_IMAGE_COLOR);
-	} else {
+	}
+	else {
 		depthPixels.allocate(depthFrameDescription.width, depthFrameDescription.height, OF_IMAGE_GRAYSCALE);
 		depthPixelsBack.allocate(depthFrameDescription.width, depthFrameDescription.height, OF_IMAGE_GRAYSCALE);
 	}
@@ -426,9 +432,9 @@ bool ofxKinectCommonBridge::initDepthStream( bool mapDepthToColor )
 	pDepthFrameBack->Buffer = depthPixelsRawBack.getPixels();
 	pDepthFrameBack->Size = depthFrameDescription.lengthInPixels;
 
-	if(bUseTexture){
+	if (bUseTexture){
 
-		if(bProgrammableRenderer) {
+		if (bProgrammableRenderer) {
 			//int w, int h, int glInternalFormat, bool bUseARBExtention, int glFormat, int pixelType
 			depthTex.allocate(depthFrameDescription.width, depthFrameDescription.height, GL_R8);//, true, GL_R8, GL_UNSIGNED_BYTE);
 			depthTex.setRGToRGBASwizzles(true);
@@ -439,22 +445,23 @@ bool ofxKinectCommonBridge::initDepthStream( bool mapDepthToColor )
 
 			cout << rawDepthTex.getWidth() << " " << rawDepthTex.getHeight() << endl;*/
 			//depthTex.allocate(K2_IR_WIDTH, K2_IR_HEIGHT, GL_RGB);
-		} else {
+		}
+		else {
 			depthTex.allocate(depthFrameDescription.width, depthFrameDescription.height, GL_LUMINANCE);
 			rawDepthTex.allocate(depthFrameDescription.width, depthFrameDescription.height, GL_LUMINANCE16);
 		}
 	}
-	
-	
+
+
 	return bInited;
 }
 
-bool ofxKinectCommonBridge::initColorStream( bool mapColorToDepth, ColorImageFormat format)
+bool ofxKinectCommonBridge::initColorStream(bool mapColorToDepth, ColorImageFormat format)
 {
 
 	KCBGetColorFrameDescription(hKinect, ColorImageFormat_Rgba, &colorFrameDescription);
 
-	if(bUseTexture){
+	if (bUseTexture){
 		if (format != ColorImageFormat_Rgba)
 		{
 			if (bProgrammableRenderer)
@@ -467,7 +474,7 @@ bool ofxKinectCommonBridge::initColorStream( bool mapColorToDepth, ColorImageFor
 			}
 		}
 		else
-		{ 
+		{
 			videoTex.allocate(colorFrameDescription.width, colorFrameDescription.height, GL_RGBA);
 		}
 	}
@@ -498,9 +505,9 @@ bool ofxKinectCommonBridge::initColorStream( bool mapColorToDepth, ColorImageFor
 	return true;
 }
 
-bool ofxKinectCommonBridge::initIRStream( int width, int height )
+bool ofxKinectCommonBridge::initIRStream(int width, int height)
 {
-	if(bStarted){
+	if (bStarted){
 		ofLogError("ofxKinectCommonBridge::startIRStream") << " Cannot configure when the sensor has already started";
 		return false;
 	}
@@ -519,9 +526,9 @@ bool ofxKinectCommonBridge::initIRStream( int width, int height )
 	pInfraredFrame->Buffer = irPixelsRaw.getPixels();
 	pInfraredFrame->Size = irFrameDescription.lengthInPixels;
 
-	if(bUseTexture)
+	if (bUseTexture)
 	{
-		if(bProgrammableRenderer){
+		if (bProgrammableRenderer){
 			videoTex.allocate(irFrameDescription.width, irFrameDescription.height, GL_R8);
 			videoTex.setRGToRGBASwizzles(true);
 		}
@@ -573,9 +580,9 @@ bool ofxKinectCommonBridge::initBodyIndexStream()
 	return true; //??
 }
 
-bool ofxKinectCommonBridge::initSkeletonStream( bool seated )
+bool ofxKinectCommonBridge::initSkeletonStream(bool seated)
 {
-	if(bStarted){
+	if (bStarted){
 		ofLogError("ofxKinectCommonBridge::initSkeletonStream") << "Cannot configure once the sensor has already started";
 		return false;
 	}
@@ -585,8 +592,8 @@ bool ofxKinectCommonBridge::initSkeletonStream( bool seated )
 
 	//HRESULT hr = KCBCreateBodyFrame(&pBodyFrame);
 	//if (hr >= 0){
-		bUsingSkeletons = true;
-		return true;
+	bUsingSkeletons = true;
+	return true;
 	//}
 	//ofLogError("ofxKinectCommonBridge::initSkeletonStream") << "cannot initialize stream";
 	//return false;
@@ -595,15 +602,15 @@ bool ofxKinectCommonBridge::initSkeletonStream( bool seated )
 //----------------------------------------------------------
 bool ofxKinectCommonBridge::start()
 {
-	
+
 	startThread(true, false);
-	bStarted = true;	
+	bStarted = true;
 	return true;
 }
 
 //----------------------------------------------------------
 void ofxKinectCommonBridge::stop() {
-	if(bStarted){
+	if (bStarted){
 		waitForThread(true);
 		bStarted = false;
 
@@ -617,25 +624,25 @@ void ofxKinectCommonBridge::stop() {
 		//KCBReleaseLongExposureInfraredFrame(_Inout_ KCBLongExposureInfraredFrame** pLongExposureInfraredFrame);
 
 	}
-}	
+}
 
 //----------------------------------------------------------
 void ofxKinectCommonBridge::threadedFunction(){
 
 	LONGLONG timestamp;
-	
+
 	//how can we tell?
-	while(isThreadRunning()) {
+	while (isThreadRunning()) {
 
 		// KCBAllFramesReady
 		//lock();
-			if (SUCCEEDED(KCBGetDepthFrame(hKinect, pDepthFrame)))
-			{
-				bNeedsUpdateDepth = true;
-			}
+		if (SUCCEEDED(KCBGetDepthFrame(hKinect, pDepthFrame)))
+		{
+			bNeedsUpdateDepth = true;
+		}
 		//unlock();
 
-		if(bUsingSkeletons) 
+		if (bUsingSkeletons)
 		{
 			LONGLONG timestamp;
 			IBodyFrame* pBodyFrame = NULL;
@@ -659,9 +666,16 @@ void ofxKinectCommonBridge::threadedFunction(){
 						continue;
 					}
 
+
+					
+
+
 					HRESULT hr = pBody->get_IsTracked(&isTracked);
 					if (isTracked)
 					{
+						HRESULT hrLeftHandState = ppBodies[i]->get_HandLeftState(&leftHandState);
+						HRESULT hrRightHandState = ppBodies[i]->get_HandRightState(&rightHandState);
+
 						HRESULT hrJoints = ppBodies[i]->GetJoints(JointType_Count, joints);
 						HRESULT hrOrient = ppBodies[i]->GetJointOrientations(JointType_Count, jointOrients);
 						if (FAILED(hrJoints))
@@ -674,12 +688,25 @@ void ofxKinectCommonBridge::threadedFunction(){
 							ofLogError("ofxKinectCommonBridge::threadedFunction") << "Failed to get orientations";
 						}
 
-						if (SUCCEEDED(hrJoints) && SUCCEEDED(hrOrient))
+						if (FAILED(hrLeftHandState))
 						{
-							for (int j = 0; j < JointType_Count; ++j)
-							{
+							ofLogError("ofxKinectCommonBridge::threadedFunction") << "Failed to get left hand state";
+						}
+
+						if (FAILED(hrRightHandState))
+						{
+							ofLogError("ofxKinectCommonBridge::threadedFunction") << "Failed to get right hand state";
+						}
+
+
+
+						if (SUCCEEDED(hrJoints) && SUCCEEDED(hrOrient) && SUCCEEDED(hrLeftHandState) && SUCCEEDED(hrRightHandState)) {
+							for (int j = 0; j < JointType_Count; ++j) {
 								backSkeletons[i].joints[joints[j].JointType] = Kv2Joint(joints[j], jointOrients[j]);
 							}
+
+							backSkeletons[i].leftHandState = leftHandState;
+							backSkeletons[i].rightHandState = rightHandState;
 						}
 						backSkeletons[i].tracked = true;
 					}
@@ -693,7 +720,7 @@ void ofxKinectCommonBridge::threadedFunction(){
 
 		if (bUsingBodyIndex)
 		{
-			
+
 			if (SUCCEEDED(KCBGetBodyIndexFrame(hKinect, pBodyIndexFrame)))
 			{
 				bNeedsUpdateBodyIndex = true;

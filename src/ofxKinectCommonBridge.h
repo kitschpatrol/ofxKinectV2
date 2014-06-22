@@ -11,7 +11,7 @@
 
 class Kv2Joint
 {
-  public:
+public:
 	Kv2Joint(){}
 	Kv2Joint(const _Joint& kcbPosition, const _JointOrientation& kcbOrientation)
 	{
@@ -36,7 +36,7 @@ class Kv2Joint
 		return trackingState;
 	}
 
-  protected:
+protected:
 	ofVec3f jointPosition;
 	ofQuaternion jointOrientation;
 	JointType type;
@@ -45,35 +45,37 @@ class Kv2Joint
 
 class Kv2Skeleton
 {
-  public:
+public:
 	bool tracked;
+	HandState leftHandState;
+	HandState rightHandState;
 	map<JointType, Kv2Joint> joints;
 };
 
 class ofxKinectCommonBridge : public ofThread {
-  public:
-	
+public:
+
 	ofxKinectCommonBridge();
 
 	// new API
-	bool initSensor( int id = 0 );
-	bool initDepthStream( bool mapDepthToColor = false );
+	bool initSensor(int id = 0);
+	bool initDepthStream(bool mapDepthToColor = false);
 	bool initColorStream(bool mapColorToDepth = false, ColorImageFormat format = ColorImageFormat_Rgba);
-	bool initIRStream( int width, int height );
-	bool initSkeletonStream( bool seated );
+	bool initIRStream(int width, int height);
+	bool initSkeletonStream(bool seated);
 	bool start();
 
 	void stop();
 
-  	/// is the current frame new?
+	/// is the current frame new?
 	bool isFrameNew();
 	bool isFrameNewVideo();
 	bool isFrameNewDepth();
 	bool isNewSkeleton();
 	bool initBodyIndexStream();
 
-	void setDepthClipping(float nearClip=500, float farClip=4000);
-	
+	void setDepthClipping(float nearClip = 500, float farClip = 4000);
+
 	/// updates the pixel buffers and textures
 	///
 	/// make sure to call this to update to the latest incoming frames
@@ -103,7 +105,7 @@ class ofxKinectCommonBridge : public ofThread {
 	void drawDepth(const ofPoint& point);
 	void drawDepth(const ofRectangle& rect);
 
-	void drawIR( float x, float y, float w, float h );
+	void drawIR(float x, float y, float w, float h);
 
 	void drawBodyIndex(float x, float y);
 
@@ -125,14 +127,14 @@ class ofxKinectCommonBridge : public ofThread {
 
 	vector<Kv2Skeleton> getSkeletons();
 
-  protected:
+protected:
 
-    KCBHANDLE hKinect;
+	KCBHANDLE hKinect;
 	//KINECT_IMAGE_FRAME_FORMAT depthFormat;
 	ColorImageFormat colorFormat;
 	//NUI_SKELETON_FRAME k4wSkeletons;
 
-  	bool bInited;
+	bool bInited;
 	bool bStarted;
 	vector<Kv2Skeleton> skeletons;
 	vector<Kv2Skeleton> backSkeletons;
@@ -145,7 +147,7 @@ class ofxKinectCommonBridge : public ofThread {
 	bool bNearWhite;
 	float nearClipping, farClipping;
 
-  	bool bUseTexture;
+	bool bUseTexture;
 	ofTexture depthTex; ///< the depth texture
 	ofTexture rawDepthTex; ///<
 	ofTexture videoTex; ///< the RGB texture
@@ -197,6 +199,8 @@ class ofxKinectCommonBridge : public ofThread {
 
 	JointOrientation jointOrients[JointType_Count];
 	Joint joints[JointType_Count];
+
+	HandState leftHandState, rightHandState;
 
 	KCBBodyIndexFrame *pBodyIndexFrame, *pBodyIndexFrameBack;
 
